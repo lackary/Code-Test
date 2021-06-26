@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Code Test</string>
+    <string name="fab_add_description">add pass</string>
+    <string name="text_pass">1 Day Pass</string>
+    <string name="text_prices">Rp 2.0000</string>
+    <string name="btn_buy">Buy</string>
+    <string name="btn_apply">Apply</string>
 </resources>
