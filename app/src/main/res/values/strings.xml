@@ -5,4 +5,9 @@
     <string name="text_prices">Rp 2.0000</string>
     <string name="btn_buy">Buy</string>
     <string name="btn_apply">Apply</string>
+    <string name="price_unit">Rp</string>
+    <string-array name="pass_type_array">
+        <item>Day</item>
+        <item>Hour</item>
+    </string-array>
 </resources>

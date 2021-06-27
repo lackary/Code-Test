@@ -2,12 +2,18 @@ package com.lacklab.app.codetest.view.fragment
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.lacklab.app.codetest.R
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.FragmentWalletBinding
 import com.lacklab.app.codetest.view.adapter.PassAdapter
@@ -15,7 +21,7 @@ import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class WalletFragment : Fragment() {
+class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
 
     private val passItem: List<String> = listOf("test1", "test1", "test1", "test1")
     private val passTypes: List<String> = arrayListOf("day", "hour")
@@ -25,6 +31,9 @@ class WalletFragment : Fragment() {
     private val viewModel: WalletViewModel by viewModels()
     private lateinit var passesDay: List<MigoPass>
     private lateinit var passesHour: List<MigoPass>
+    private var currentPassType: String = "Day"
+    private var currentPrice: Double = 0.0000
+    private var currentPassNumber: Long = 0
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -53,6 +62,42 @@ class WalletFragment : Fragment() {
             } else {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
+        }
+
+        //set spinner
+        val passTypeSpinner = viewBinding.includeBottomSheet.spinnerPassType
+        this.context?.let { it ->
+            ArrayAdapter.createFromResource(
+                it,
+                R.array.pass_type_array,
+                R.layout.support_simple_spinner_dropdown_item).also { adapter ->
+                    adapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+                    passTypeSpinner.adapter = adapter
+            }
+        }
+
+        viewBinding.includeBottomSheet.textEditNumber.setOnKeyListener { v, keyCode, event ->
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                currentPassNumber =
+                    viewBinding.includeBottomSheet.textEditNumber.text.toString().toLong()
+                currentPrice = currentPassNumber * 2.0000
+                viewBinding.includeBottomSheet.textPrice.text = "Rp $currentPrice"
+                true
+            } else {
+                false
+            }
+        }
+
+        //set Button apply
+        viewBinding.includeBottomSheet.btnApply.setOnClickListener {
+              val migoPass =  MigoPass(
+                  passType = currentPassType,
+                  number = currentPassNumber,
+                  prices = currentPrice,
+                  passeStatus = "Added"
+              )
+            viewModel.insertPass(migoPass)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         }
 
         return viewBinding.root
@@ -94,5 +139,14 @@ class WalletFragment : Fragment() {
 //        viewModel.passesHour.observe(viewLifecycleOwner) {
 //            passesHour = it
 //        }
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        Log.i("onItemSelected", "position: $position")
+        currentPassType = resources.getStringArray(R.array.pass_type_array)[position]
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
+        TODO("Not yet implemented")
     }
 }

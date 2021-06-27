@@ -11,13 +11,13 @@ import kotlinx.coroutines.flow.Flow
 interface PassDao {
 
     @Insert
-    fun insertPasses(passes: List<MigoPass>)
+    suspend fun insertPasses(passes: List<MigoPass>)
 
     @Insert
-    fun insertPass(pass: MigoPass)
+    suspend fun insertPass(pass: MigoPass)
 
     @Delete
-    fun deletePass(pass: MigoPass)
+    suspend fun deletePass(pass: MigoPass)
 
     @Query("SELECT * FROM pass WHERE pass_type = :passType" )
     fun getPasses(passType: String): Flow<List<MigoPass>>

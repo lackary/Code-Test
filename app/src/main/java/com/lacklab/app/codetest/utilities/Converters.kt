@@ -5,9 +5,14 @@ import java.util.*
 
 class Converters {
     @TypeConverter
-    fun calendarToDatestamp(calendar: Calendar): Long = calendar.timeInMillis
+    fun calendarToDatestamp(calendar: Calendar?): Long? {
+        return calendar?.timeInMillis
+    }
 
     @TypeConverter
-    fun datestampToCalendar(value: Long): Calendar =
-        Calendar.getInstance().apply { timeInMillis = value }
+    fun datestampToCalendar(value: Long?): Calendar? {
+        return if(value == null) null else
+                Calendar.getInstance().apply { timeInMillis = value }
+    }
+
 }
