@@ -10,6 +10,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.viewbinding.ViewBinding
 import com.lacklab.app.codetest.R
 import com.lacklab.app.codetest.databinding.FragmentPassDetailBinding
+import com.lacklab.app.codetest.utilities.Converters
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -17,6 +18,7 @@ class PassDetailFragment : Fragment(){
 
     private lateinit var viewBinding: FragmentPassDetailBinding
     private val args: PassDetailFragmentArgs by navArgs()
+    private val converters = Converters()
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -40,6 +42,10 @@ class PassDetailFragment : Fragment(){
             "${resources.getString(R.string.item_pass_price)} Rp %.4f".format(args.pass.prices)
         viewBinding.textItemStatus.text =
             "${resources.getString(R.string.item_pass_status)} ${args.pass.passeStatus}"
+        viewBinding.textItemInsertionDate.text =
+            "${resources.getString(R.string.item_pass_insertion_date)} " +
+                    "${Converters.dateFormat.format(args.pass.insertionDate.time)}"
+
         return viewBinding.root
     }
 
