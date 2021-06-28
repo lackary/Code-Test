@@ -19,6 +19,7 @@ import com.lacklab.app.codetest.databinding.FragmentWalletBinding
 import com.lacklab.app.codetest.view.adapter.PassAdapter
 import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.merge
 
 @AndroidEntryPoint
 class WalletFragment : Fragment() {
@@ -148,10 +149,14 @@ class WalletFragment : Fragment() {
     private fun updateUi() {
         viewModel.passesDay.observe(viewLifecycleOwner) { it ->
             passesDay = it
-            passAdapter.submitList(passesDay)
+            viewModel.passesHour.observe(viewLifecycleOwner) {
+                passesHour = it
+                val allList = passesDay + passesHour
+                passAdapter.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
+                passAdapter.submitList(allList)
+            }
+//            passAdapter.submitList(passesDay)
         }
-//        viewModel.passesHour.observe(viewLifecycleOwner) {
-//            passesHour = it
-//        }
+
     }
 }

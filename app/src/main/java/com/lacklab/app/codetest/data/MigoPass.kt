@@ -13,13 +13,13 @@ data class MigoPass(
     val number: Long,
     val prices: Double,
     @ColumnInfo(name = "passe_status")
-    val passeStatus: String,
+    var passeStatus: String,
     @ColumnInfo(name = "pass_activation")
-    val passActivation: String? = null,
+    var passActivation: String? = null,
     @ColumnInfo(name = "insertion_date")
     val insertionDate: Calendar = Calendar.getInstance(),
     @ColumnInfo(name = "expiration_time")
-    val expirationTime: Calendar? = null
+    var expirationTime: Calendar? = null
 ) : Serializable {
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
