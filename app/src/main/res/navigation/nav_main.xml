@@ -7,5 +7,17 @@
     <fragment
         android:id="@+id/walletFragment"
         android:name="com.lacklab.app.codetest.view.fragment.WalletFragment"
-        android:label="WalletFragment" />
+        android:label="WalletFragment" >
+        <action
+            android:id="@+id/action_walletFragment_to_passDetailFragment"
+            app:destination="@id/passDetailFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/passDetailFragment"
+        android:name="com.lacklab.app.codetest.view.fragment.PassDetailFragment"
+        android:label="PassDetailFragment" >
+        <argument
+            android:name="pass"
+            app:argType="com.lacklab.app.codetest.data.MigoPass" />
+    </fragment>
 </navigation>

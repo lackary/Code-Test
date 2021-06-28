@@ -3,6 +3,7 @@ package com.lacklab.app.codetest.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.io.Serializable
 import java.util.*
 
 @Entity(tableName = "pass")
@@ -19,7 +20,7 @@ data class MigoPass(
     val insertionDate: Calendar = Calendar.getInstance(),
     @ColumnInfo(name = "expiration_time")
     val expirationTime: Calendar? = null
-) {
+) : Serializable {
     @PrimaryKey(autoGenerate = true)
     var id: Long = 0
 }

@@ -1,12 +1,15 @@
 package com.lacklab.app.codetest.view.adapter
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.ItemPassBinding
+import com.lacklab.app.codetest.view.fragment.WalletFragmentDirections
 
 class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
 
@@ -28,17 +31,25 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
 
     class PassViewHolder(
         private val viewBinding: ItemPassBinding) : RecyclerView.ViewHolder(viewBinding.root) {
+            private var pass: MigoPass? = null
             init {
                 viewBinding.root.setOnClickListener {
-
+                    navigateToPassDetail(pass!!, it)
                 }
             }
 
         fun bind(item: MigoPass) {
+            pass = item
             viewBinding.textViewPass.text = "${item.number} ${item.passType} Pass"
             viewBinding.textViewPrice.text = "Rp %.4f".format(item.prices)
             viewBinding.btnBuy.text =
                 if (item.passeStatus == "Added") "BUY" else "ACTIVATED"
+        }
+
+        private fun navigateToPassDetail(pass:MigoPass, view: View) {
+            val direction = WalletFragmentDirections.
+                actionWalletFragmentToPassDetailFragment(pass)
+            view.findNavController().navigate(direction)
         }
 
     }
