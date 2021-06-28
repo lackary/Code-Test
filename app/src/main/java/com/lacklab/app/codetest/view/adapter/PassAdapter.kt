@@ -8,7 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.ItemPassBinding
 
-class PassAdapter : ListAdapter<String, RecyclerView.ViewHolder>(PassDiffCallback()) {
+class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val viewBinding =
             ItemPassBinding.inflate(
@@ -33,21 +34,25 @@ class PassAdapter : ListAdapter<String, RecyclerView.ViewHolder>(PassDiffCallbac
                 }
             }
 
-        fun bind(item: String) {
-
+        fun bind(item: MigoPass) {
+            viewBinding.textViewPass.text = "${item.number} ${item.passType} Pass"
+            viewBinding.textViewPrice.text = "Rp %.4f".format(item.prices)
+            viewBinding.btnBuy.text =
+                if (item.passeStatus == "Added") "BUY" else "ACTIVATED"
         }
 
     }
 
 }
 
-private class PassDiffCallback : DiffUtil.ItemCallback<String> () {
-    override fun areItemsTheSame(oldItem: String, newItem: String): Boolean {
-        TODO("Not yet implemented")
+private class PassDiffCallback : DiffUtil.ItemCallback<MigoPass> () {
+    override fun areItemsTheSame(oldItem: MigoPass, newItem: MigoPass): Boolean {
+        return oldItem.id == newItem.id
     }
 
-    override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
-        TODO("Not yet implemented")
+    override fun areContentsTheSame(oldItem: MigoPass, newItem: MigoPass): Boolean {
+        return oldItem == newItem
     }
+
 
 }

@@ -12,4 +12,6 @@ class WalletRepository @Inject constructor(
     fun getPasses(passType: String) = passDao.getPasses(passType)
 
     suspend fun insertPass(pass: MigoPass) = passDao.insertPass(pass)
+
+    fun updatePass(pass: MigoPass) = passDao.updatePass(pass)
 }

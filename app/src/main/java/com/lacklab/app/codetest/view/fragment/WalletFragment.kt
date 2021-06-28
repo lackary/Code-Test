@@ -21,10 +21,8 @@ import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
+class WalletFragment : Fragment() {
 
-    private val passItem: List<String> = listOf("test1", "test1", "test1", "test1")
-    private val passTypes: List<String> = arrayListOf("day", "hour")
     private val passAdapter = PassAdapter()
     private lateinit var viewBinding: FragmentWalletBinding
 
@@ -51,7 +49,7 @@ class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
         viewBinding = FragmentWalletBinding.inflate(inflater, container, false)
 
         viewBinding.recyclerViewWallet.adapter = passAdapter
-        passAdapter.submitList(passItem)
+//        passAdapter.submitList(passItem)
 
         // set bottom sheet behavior
         val bottomSheetBehavior = BottomSheetBehavior.from(
@@ -64,7 +62,7 @@ class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
             }
         }
 
-        //set spinner
+        // set spinner
         val passTypeSpinner = viewBinding.includeBottomSheet.spinnerPassType
         this.context?.let { it ->
             ArrayAdapter.createFromResource(
@@ -75,7 +73,22 @@ class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     passTypeSpinner.adapter = adapter
             }
         }
+        passTypeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                currentPassType = parent?.getItemAtPosition(position).toString()
+            }
 
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+
+            }
+        }
+
+        // set EditText
         viewBinding.includeBottomSheet.textEditNumber.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 currentPassNumber =
@@ -133,20 +146,12 @@ class WalletFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     private fun updateUi() {
-        viewModel.passesDay.observe(viewLifecycleOwner) {
+        viewModel.passesDay.observe(viewLifecycleOwner) { it ->
             passesDay = it
+            passAdapter.submitList(passesDay)
         }
 //        viewModel.passesHour.observe(viewLifecycleOwner) {
 //            passesHour = it
 //        }
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        Log.i("onItemSelected", "position: $position")
-        currentPassType = resources.getStringArray(R.array.pass_type_array)[position]
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        TODO("Not yet implemented")
     }
 }

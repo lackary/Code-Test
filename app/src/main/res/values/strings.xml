@@ -3,9 +3,16 @@
     <string name="fab_add_description">add pass</string>
     <string name="text_pass">1 Day Pass</string>
     <string name="text_prices">Rp 2.0000</string>
-    <string name="btn_buy">Buy</string>
+    <string name="btn_buy">BUY</string>
     <string name="btn_apply">Apply</string>
     <string name="price_unit">Rp</string>
+    <string name="item_pass_type">Type:</string>
+    <string name="item_pass_number">Number:</string>
+    <string name="item_pass_price">Price:</string>
+    <string name="item_pass_status">Status:</string>
+    <string name="item_pass_activation">Activation:</string>
+    <string name="item_pass_insertion_date">Insertion Date:</string>
+    <string name="item_pass_expiration_time">Expiration Time:</string>
     <string-array name="pass_type_array">
         <item>Day</item>
         <item>Hour</item>

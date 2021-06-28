@@ -23,6 +23,11 @@ class WalletViewModel @Inject internal constructor(
         viewModelScope.launch {
             walletRepository.insertPass(pass)
         }
+    }
 
+    fun updatePass(pass: MigoPass) {
+        viewModelScope.launch {
+            walletRepository.updatePass(pass)
+        }
     }
 }

@@ -1,9 +1,6 @@
 package com.lacklab.app.codetest.dao
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.lacklab.app.codetest.data.MigoPass
 import kotlinx.coroutines.flow.Flow
 
@@ -18,6 +15,9 @@ interface PassDao {
 
     @Delete
     suspend fun deletePass(pass: MigoPass)
+
+    @Update
+    fun updatePass(pass: MigoPass)
 
     @Query("SELECT * FROM pass WHERE pass_type = :passType" )
     fun getPasses(passType: String): Flow<List<MigoPass>>
