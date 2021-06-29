@@ -19,6 +19,6 @@ interface PassDao {
     @Update
     fun updatePass(pass: MigoPass)
 
-    @Query("SELECT * FROM pass WHERE pass_type = :passType" )
+    @Query("SELECT * FROM pass WHERE pass_type = :passType ORDER BY id DESC" )
     fun getPasses(passType: String): Flow<List<MigoPass>>
 }

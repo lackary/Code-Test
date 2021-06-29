@@ -20,15 +20,15 @@ import java.util.*
 
 class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
     companion object {
-        const val TYPE_DAY_HEADER = 0
-        const val TYPE_HOUR_HEADER = 1
+        const val TYPE_HEADER = 0
         const val TYPE_NORMAL = 2
     }
 
-    private var headPositions: List<Int> = mutableListOf(0)
+    private var headPositions = mutableListOf<Int>()
+    private var passTypes = mutableListOf<String>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == TYPE_DAY_HEADER || viewType == TYPE_HOUR_HEADER) {
+        if (viewType == TYPE_HEADER) {
             val viewBinding = ViewPassHeaderBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent, false
@@ -43,46 +43,58 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == headPositions!![0]) {
-            (holder as HeaderViewHolder).bind("DAY PASS")
+        if (position == headPositions[0]) {
+            (holder as HeaderViewHolder).bind("${passTypes[0]} PASS")
         }
-        else if (position == headPositions!![1]) {
-            (holder as HeaderViewHolder).bind("HOUR PASS")
-        }
-        else {
-            val item = if (position > headPositions!![1]) {
-                getItem(position - 2)
+        else if (passTypes.size == 2) {
+            if (position == headPositions[1]) {
+                (holder as HeaderViewHolder).bind("HOUR PASS")
+            } else {
+                val item = if (position > headPositions[1]) {
+                    getItem(position - 2)
+                }  else {
+                    getItem(position - 1)
+                }
+                if (item != null) {
+                    (holder as PassViewHolder).bind(item)
+                }
             }
-            else {
-                getItem(position - 1)
-            }
-//            val item = getItem(position - 1)
+        } else {
+            val item = getItem(position - 1)
             if (item != null) {
                 (holder as PassViewHolder).bind(item)
             }
         }
-
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position == headPositions!![0]) {
-            return TYPE_DAY_HEADER
+        if (position == headPositions[0])  {
+            return TYPE_HEADER
         }
-        else if (position == headPositions!![1]) {
-            return TYPE_HOUR_HEADER
+        if (passTypes.size == 2) {
+            if (position == headPositions[1]) {
+                return TYPE_HEADER
+            }
         }
         return TYPE_NORMAL
 
     }
 
     override fun getItemCount(): Int {
-        return if (headPositions!!.size > 1)
-            super.getItemCount() + 2 else super.getItemCount() + 1
-//        return super.getItemCount() + 1
+        if (passTypes.size == 1) {
+            return super.getItemCount() + 1
+        } else if (passTypes.size == 2) {
+            return super.getItemCount() + 2
+        }
+        return super.getItemCount()
+    }
+
+    fun setPassTypes(types: List<String>) {
+        passTypes = types as MutableList<String>
     }
 
     fun setHeaderPosition(indices: List<Int>) {
-        headPositions = indices
+        headPositions = indices as MutableList<Int>
     }
 
     class HeaderViewHolder(
@@ -120,6 +132,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
 
         fun bind(item: MigoPass) {
             pass = item
+            Log.i("TEST","${item.number} ${item.passType} Pass\"")
             viewBinding.textViewPass.text = "${item.number} ${item.passType} Pass"
             viewBinding.textViewPrice.text = "Rp %.4f".format(item.prices)
             if (item.passeStatus == "Added") {

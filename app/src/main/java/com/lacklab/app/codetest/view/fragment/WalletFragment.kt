@@ -90,6 +90,7 @@ class WalletFragment : Fragment() {
         }
 
         // set EditText
+        viewBinding.includeBottomSheet.textEditNumber.text
         viewBinding.includeBottomSheet.textEditNumber.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 currentPassNumber =
@@ -151,11 +152,24 @@ class WalletFragment : Fragment() {
             passesDay = it
             viewModel.passesHour.observe(viewLifecycleOwner) {
                 passesHour = it
+                val passTypes = mutableListOf<String>()
+                val headPositions = mutableListOf<Int>()
+                if (passesDay.isNotEmpty()) {
+                    passTypes.add("DAY")
+                }
+                if (passesHour.isNotEmpty()) {
+                    passTypes.add("HOUR")
+                }
                 val allList = passesDay + passesHour
-                passAdapter.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
+                passAdapter.setPassTypes(passTypes)
+                if (passTypes.size == 1) {
+                    passAdapter.setHeaderPosition(arrayListOf(0))
+                } else if (passTypes.size == 2) {
+                    passAdapter.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
+                }
+
                 passAdapter.submitList(allList)
             }
-//            passAdapter.submitList(passesDay)
         }
 
     }
