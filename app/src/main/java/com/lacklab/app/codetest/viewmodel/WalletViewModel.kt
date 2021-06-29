@@ -19,7 +19,8 @@ class WalletViewModel @Inject internal constructor(
         walletRepository.getPasses("Day").asLiveData()
     val passesHour: LiveData<List<MigoPass>> =
         walletRepository.getPasses("Hour").asLiveData()
-
+    val apiStatus: LiveData<String> =
+        walletRepository.getAPIStatus().asLiveData()
     fun insertPass(pass: MigoPass) {
         viewModelScope.launch {
             walletRepository.insertPass(pass)

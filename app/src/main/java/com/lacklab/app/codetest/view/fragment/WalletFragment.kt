@@ -150,6 +150,9 @@ class WalletFragment : Fragment(), PassItemClickEvent {
     }
 
     private fun updateUi() {
+        viewModel.apiStatus.observe(viewLifecycleOwner) {
+            viewBinding.textViewApiStatus.text = it
+        }
         viewModel.passesDay.observe(viewLifecycleOwner) { it ->
             passesDay = it
             viewModel.passesHour.observe(viewLifecycleOwner) {
