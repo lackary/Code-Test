@@ -25,7 +25,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
         const val TYPE_NORMAL = 2
     }
 
-    private var sectionPosition: List<Int> = mutableListOf(0)
+    private var headPositions: List<Int> = mutableListOf(0)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_DAY_HEADER || viewType == TYPE_HOUR_HEADER) {
@@ -43,14 +43,14 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (position == sectionPosition!![0]) {
+        if (position == headPositions!![0]) {
             (holder as HeaderViewHolder).bind("DAY PASS")
         }
-        else if (position == sectionPosition!![1]) {
+        else if (position == headPositions!![1]) {
             (holder as HeaderViewHolder).bind("HOUR PASS")
         }
         else {
-            val item = if (position > sectionPosition!![1]) {
+            val item = if (position > headPositions!![1]) {
                 getItem(position - 2)
             }
             else {
@@ -65,10 +65,10 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position == sectionPosition!![0]) {
+        if (position == headPositions!![0]) {
             return TYPE_DAY_HEADER
         }
-        else if (position == sectionPosition!![1]) {
+        else if (position == headPositions!![1]) {
             return TYPE_HOUR_HEADER
         }
         return TYPE_NORMAL
@@ -76,13 +76,13 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
     }
 
     override fun getItemCount(): Int {
-        return if (sectionPosition!!.size > 1)
+        return if (headPositions!!.size > 1)
             super.getItemCount() + 2 else super.getItemCount() + 1
 //        return super.getItemCount() + 1
     }
 
     fun setHeaderPosition(indices: List<Int>) {
-        sectionPosition = indices
+        headPositions = indices
     }
 
     class HeaderViewHolder(
