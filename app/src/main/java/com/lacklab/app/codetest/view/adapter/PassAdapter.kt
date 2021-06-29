@@ -1,5 +1,6 @@
 package com.lacklab.app.codetest.view.adapter
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -11,14 +12,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.ItemPassBinding
 import com.lacklab.app.codetest.databinding.ViewPassHeaderBinding
+import com.lacklab.app.codetest.event.PassItemClickEvent
 import com.lacklab.app.codetest.utilities.Converters
 import com.lacklab.app.codetest.utilities.ONEDAYMILLIS
 import com.lacklab.app.codetest.view.fragment.WalletFragmentDirections
-import com.lacklab.app.codetest.viewmodel.PassViewModel
 import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import java.util.*
 
-class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
+class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
     companion object {
         const val TYPE_HEADER = 0
         const val TYPE_NORMAL = 2
@@ -26,6 +27,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
 
     private var headPositions = mutableListOf<Int>()
     private var passTypes = mutableListOf<String>()
+//    private var clickEvent: PassItemClickEvent? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_HEADER) {
@@ -43,6 +45,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+
         if (position == headPositions[0]) {
             (holder as HeaderViewHolder).bind("${passTypes[0]} PASS")
         }
@@ -52,17 +55,17 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
             } else {
                 val item = if (position > headPositions[1]) {
                     getItem(position - 2)
-                }  else {
+                } else {
                     getItem(position - 1)
                 }
                 if (item != null) {
-                    (holder as PassViewHolder).bind(item)
+                    (holder as PassViewHolder).bind(item, clickEvent)
                 }
             }
         } else {
             val item = getItem(position - 1)
             if (item != null) {
-                (holder as PassViewHolder).bind(item)
+                (holder as PassViewHolder).bind(item, clickEvent)
             }
         }
     }
@@ -109,6 +112,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
             private val viewBinding: ItemPassBinding
         ) : RecyclerView.ViewHolder(viewBinding.root) {
             private var pass: MigoPass? = null
+            private var clickEvent: PassItemClickEvent? = null
             init {
                 val converters = Converters()
                 viewBinding.root.setOnClickListener {
@@ -116,21 +120,15 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
                 }
 
                 viewBinding.btnBuy.setOnClickListener {
-                    pass!!.passeStatus = "Bought"
-                    pass!!.passActivation = "Activated"
-                    if (pass!!.passType == "Day") {
-                        // calculate the expiration date of Day
-                    } else {
-                        var calendar = Calendar.getInstance()
-                        calendar.add(Calendar.HOUR, pass!!.number.toInt())
+                    calculateExpirationDate(pass!!)
+                    Log.i("TEST", "${pass?.expirationTime?.timeInMillis}")
+                    clickEvent!!.onButtonBuyClick(pass!!)
 
-                        Log.i("Adapter", "expiration Date: ${Converters.dateFormat.format(calendar.time)}")
-                        pass!!.expirationTime = calendar
-                    }
                 }
             }
 
-        fun bind(item: MigoPass) {
+        fun bind(item: MigoPass, event: PassItemClickEvent) {
+            clickEvent = event
             pass = item
             Log.i("TEST","${item.number} ${item.passType} Pass\"")
             viewBinding.textViewPass.text = "${item.number} ${item.passType} Pass"
@@ -143,7 +141,7 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
                     viewBinding.btnBuy.text ="ACTIVATED"
                     viewBinding.btnBuy.isClickable = false
                 } else {
-                    viewBinding.btnBuy.text ="Expired"
+                    viewBinding.btnBuy.text ="EXPIRED"
                     viewBinding.btnBuy.isClickable = false
                 }
             }
@@ -153,6 +151,20 @@ class PassAdapter : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallb
             val direction = WalletFragmentDirections.
                 actionWalletFragmentToPassDetailFragment(pass)
             view.findNavController().navigate(direction)
+        }
+
+        private fun calculateExpirationDate(pass: MigoPass) {
+            pass.passeStatus = "Bought"
+            pass.passActivation = "Activated"
+            if (pass.passType == "Day") {
+                // calculate the expiration date of Day
+            } else {
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.HOUR, pass.number.toInt())
+
+                Log.i("Adapter", "expiration Date: ${Converters.dateFormat.format(calendar.time)}")
+                pass.expirationTime = calendar
+            }
         }
 
     }

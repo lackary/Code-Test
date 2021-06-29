@@ -16,18 +16,19 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.lacklab.app.codetest.R
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.FragmentWalletBinding
+import com.lacklab.app.codetest.event.PassItemClickEvent
 import com.lacklab.app.codetest.view.adapter.PassAdapter
 import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.merge
 
 @AndroidEntryPoint
-class WalletFragment : Fragment() {
+class WalletFragment : Fragment(), PassItemClickEvent {
 
-    private val passAdapter = PassAdapter()
     private lateinit var viewBinding: FragmentWalletBinding
 
     private val viewModel: WalletViewModel by viewModels()
+    private var passAdapter = PassAdapter(this)
     private lateinit var passesDay: List<MigoPass>
     private lateinit var passesHour: List<MigoPass>
     private var currentPassType: String = "Day"
@@ -36,6 +37,7 @@ class WalletFragment : Fragment() {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -161,16 +163,22 @@ class WalletFragment : Fragment() {
                     passTypes.add("HOUR")
                 }
                 val allList = passesDay + passesHour
-                passAdapter.setPassTypes(passTypes)
+                passAdapter!!.setPassTypes(passTypes)
                 if (passTypes.size == 1) {
-                    passAdapter.setHeaderPosition(arrayListOf(0))
+                    passAdapter!!.setHeaderPosition(arrayListOf(0))
                 } else if (passTypes.size == 2) {
-                    passAdapter.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
+                    passAdapter!!.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
                 }
 
-                passAdapter.submitList(allList)
+                passAdapter!!.submitList(allList)
             }
         }
 
+    }
+
+    override fun onButtonBuyClick(pass: MigoPass) {
+        Log.i("WalletFragment", "onButtonBuyClick")
+
+        viewModel.updatePass(pass)
     }
 }
