@@ -47,9 +47,12 @@ class PassDetailFragment : Fragment(){
         viewBinding.textItemInsertionDate.text =
             "${resources.getString(R.string.item_pass_insertion_date)} " +
                     "${Converters.dateFormat.format(args.pass.insertionDate.time)}"
-        viewBinding.textItemExpirationTime.text =
-            "${resources.getString(R.string.item_pass_expiration_time)}" +
-                    "${Converters.dateFormat.format(args.pass.expirationTime?.time)}"
+        if (args.pass.expirationTime != null) {
+            viewBinding.textItemExpirationTime.text =
+                "${resources.getString(R.string.item_pass_expiration_time)}" +
+                        "${Converters.dateFormat.format(args.pass.expirationTime?.time)}"
+        }
+
 
         return viewBinding.root
     }
