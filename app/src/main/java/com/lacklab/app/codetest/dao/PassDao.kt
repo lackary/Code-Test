@@ -23,5 +23,5 @@ interface PassDao {
     fun getPasses(passType: String): Flow<List<MigoPass>>
 
     @Query("SELECT * FROM pass WHERE id = :id")
-    fun getPass(id: Long): Flow<MigoPass>
+    suspend fun getPass(id: Long): MigoPass
 }

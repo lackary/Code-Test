@@ -33,8 +33,6 @@ class WalletViewModel @Inject internal constructor(
 
     suspend fun updatePass(pass: MigoPass) = walletRepository.updatePass(pass)
 
-    fun getPass(id: Long) {
-        pass = walletRepository.getPass(id).asLiveData()
-    }
+    suspend fun getPass(id: Long): MigoPass = walletRepository.getPass(id)
 
 }

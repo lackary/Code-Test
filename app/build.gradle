@@ -50,6 +50,9 @@ dependencies {
     // recycelerview
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
 
+    //swiperefresh
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
     // fragment
     implementation 'androidx.fragment:fragment-ktx:1.3.5'
 

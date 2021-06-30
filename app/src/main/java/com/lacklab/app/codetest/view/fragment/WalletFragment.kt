@@ -137,8 +137,6 @@ class WalletFragment : Fragment(), PassItemEvent {
                 )
                 viewModel.insertPass(migoPass)
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-                // rest current pass number if we inserted pass
-                currentPassNumber = 0
             }
         }
 
@@ -214,23 +212,21 @@ class WalletFragment : Fragment(), PassItemEvent {
         lifecycleScope.launch {
             viewModel.updatePass(pass)
             Log.i("WalletFragment", "updatePass done")
-            viewModel.getPass(pass.id)
-            viewModel.pass?.observe(viewLifecycleOwner) {
-                Log.d(TAG, "pass:" +
-                        " ${Converters.dateFormat.format(pass.expirationTime?.time)}")
-                val passList = passAdapter.currentList.toMutableList()
-                if (passAdapter.getPassTypeCount() == 2) {
-                    if (it.passType == "Day"){
-                        passList[position - 1] = it
-                    } else {
-                        passList[position - 2] = it
-                    }
+            val pass = viewModel.getPass(pass.id)
+            Log.d(TAG, "pass:" +
+                    " ${Converters.dateFormat.format(pass.expirationTime?.time)}")
+            val passList = passAdapter.currentList.toMutableList()
+            if (passAdapter.getPassTypeCount() == 2) {
+                if (pass.passType == "Day"){
+                    passList[position - 1] = pass
                 } else {
-                    passList[position - 1] = it
+                    passList[position - 2] = pass
                 }
-                passAdapter.submitList(passList)
-                passAdapter.notifyDataSetChanged()
+            } else {
+                passList[position - 1] = pass
             }
+            passAdapter.submitList(passList)
+            passAdapter.notifyDataSetChanged()
         }
     }
 }

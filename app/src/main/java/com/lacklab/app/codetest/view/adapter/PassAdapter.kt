@@ -51,7 +51,7 @@ class PassAdapter(private val event: PassItemEvent) : ListAdapter<MigoPass, Recy
             if (position == headPositions[1]) {
                 (holder as HeaderViewHolder).bind("HOUR PASS")
             } else {
-                val item = if (position > headPositions[1]) {
+                val item = if (position >= headPositions[1]) {
                     getItem(position - 2)
                 } else {
                     getItem(position - 1)

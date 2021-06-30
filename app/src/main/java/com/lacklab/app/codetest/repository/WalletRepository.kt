@@ -22,10 +22,12 @@ class WalletRepository @Inject constructor(
         return passDao.getPasses(passType)
     }
 
-    fun getPass(id: Long): Flow<MigoPass> {
-        Log.d("WalletRepository", "getPass() id: $id")
-        return passDao.getPass(id)
-    }
+    suspend fun getPass(id: Long): MigoPass = passDao.getPass(id)
+
+//    fun getPass(id: Long): Flow<MigoPass> {
+//        Log.d("WalletRepository", "getPass() id: $id")
+//        return passDao.getPass(id)
+//    }
 
     suspend fun insertPass(pass: MigoPass) = passDao.insertPass(pass)
 
