@@ -21,4 +21,7 @@ interface PassDao {
 
     @Query("SELECT * FROM pass WHERE pass_type = :passType ORDER BY id DESC" )
     fun getPasses(passType: String): Flow<List<MigoPass>>
+
+    @Query("SELECT * FROM pass WHERE id = :id")
+    fun getPass(id: Long): Flow<MigoPass>
 }

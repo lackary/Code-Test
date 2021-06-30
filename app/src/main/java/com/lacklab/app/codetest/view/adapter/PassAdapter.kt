@@ -1,6 +1,5 @@
 package com.lacklab.app.codetest.view.adapter
 
-import android.content.Context
 import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,14 +12,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.ItemPassBinding
 import com.lacklab.app.codetest.databinding.ViewPassHeaderBinding
-import com.lacklab.app.codetest.event.PassItemClickEvent
+import com.lacklab.app.codetest.event.PassItemEvent
 import com.lacklab.app.codetest.utilities.Converters
-import com.lacklab.app.codetest.utilities.ONEDAYMILLIS
 import com.lacklab.app.codetest.view.fragment.WalletFragmentDirections
-import com.lacklab.app.codetest.viewmodel.WalletViewModel
+import retrofit2.http.GET
 import java.util.*
 
-class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
+class PassAdapter(private val event: PassItemEvent) : ListAdapter<MigoPass, RecyclerView.ViewHolder>(PassDiffCallback()) {
     companion object {
         const val TYPE_HEADER = 0
         const val TYPE_NORMAL = 2
@@ -59,13 +57,13 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
                     getItem(position - 1)
                 }
                 if (item != null) {
-                    (holder as PassViewHolder).bind(item, clickEvent)
+                    (holder as PassViewHolder).bind(item, event)
                 }
             }
         } else {
             val item = getItem(position - 1)
             if (item != null) {
-                (holder as PassViewHolder).bind(item, clickEvent)
+                (holder as PassViewHolder).bind(item, event)
             }
         }
     }
@@ -96,8 +94,16 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
         passTypes = types as MutableList<String>
     }
 
+    fun getPassTypeCount(): Int  {
+        return passTypes.size
+    }
+
     fun setHeaderPosition(indices: List<Int>) {
         headPositions = indices as MutableList<Int>
+    }
+
+    fun getHeaderPosition(): List<Int>{
+        return headPositions
     }
 
     class HeaderViewHolder(
@@ -112,11 +118,13 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
             private val viewBinding: ItemPassBinding
         ) : RecyclerView.ViewHolder(viewBinding.root) {
             private var pass: MigoPass? = null
-            private var clickEvent: PassItemClickEvent? = null
+            private var event: PassItemEvent? = null
             init {
-                val converters = Converters()
                 viewBinding.root.setOnClickListener {
                     navigateToPassDetail(pass!!, it)
+                    Log.d("PassAdapter", "absoluteAdapterPosition: $absoluteAdapterPosition")
+                    Log.d("PassAdapter", "bindingAdapterPosition: $bindingAdapterPosition")
+                    Log.d("PassAdapter", "absoluteAdapterPosition: $layoutPosition")
                 }
 
                 viewBinding.btnBuy.setOnClickListener {
@@ -124,29 +132,37 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
 //                    viewBinding.btnBuy.text ="ACTIVATED"
 //                    viewBinding.btnBuy.isClickable = false
 //                    viewBinding.btnBuy.setTextColor(Color.GREEN)
-                    Log.i("TEST", "${pass?.expirationTime?.timeInMillis}")
-                    clickEvent!!.onButtonBuyClick(pass!!)
+                    event!!.onButtonBuyClick(pass!!, absoluteAdapterPosition)
 
                 }
             }
 
-        fun bind(item: MigoPass, event: PassItemClickEvent) {
-            clickEvent = event
+        fun bind(item: MigoPass, event: PassItemEvent) {
+            this.event = event
             pass = item
+            val currentTime = Calendar.getInstance().timeInMillis
+            if (item.expirationTime != null) {
+                Log.d("PassAdapter", "pass:" +
+                        " ${Converters.dateFormat.format(item.expirationTime!!.time)}")
+                if (item.expirationTime!!.timeInMillis < currentTime) {
+                    item.passActivation = "Expired"
+                }
+            }
             Log.i("TEST","${item.number} ${item.passType} Pass\"")
             viewBinding.textViewPass.text = "${item.number} ${item.passType} Pass"
             viewBinding.textViewPrice.text = "Rp %.4f".format(item.prices)
             if (item.passeStatus == "Added") {
                 viewBinding.btnBuy.text ="BUY"
-                viewBinding.btnBuy.isClickable = true
+                viewBinding.btnBuy.setTextColor(Color.BLACK)
+                viewBinding.btnBuy.isEnabled = true
             } else {
                 if (item.passActivation == "Activated") {
                     viewBinding.btnBuy.text ="ACTIVATED"
-                    viewBinding.btnBuy.isClickable = false
+                    viewBinding.btnBuy.isEnabled = false
                     viewBinding.btnBuy.setTextColor(Color.GREEN)
                 } else {
                     viewBinding.btnBuy.text ="EXPIRED"
-                    viewBinding.btnBuy.isClickable = false
+                    viewBinding.btnBuy.isEnabled = false
                     viewBinding.btnBuy.setTextColor(Color.RED)
                 }
             }
@@ -162,7 +178,11 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
             pass.passeStatus = "Bought"
             pass.passActivation = "Activated"
             if (pass.passType == "Day") {
-                // calculate the expiration date of Day
+                val calendar = Calendar.getInstance()
+                calendar.add(Calendar.DAY_OF_YEAR, pass.number.toInt())
+
+                Log.i("Adapter", "expiration Date: ${Converters.dateFormat.format(calendar.time)}")
+                pass.expirationTime = calendar
             } else {
                 val calendar = Calendar.getInstance()
                 calendar.add(Calendar.HOUR, pass.number.toInt())

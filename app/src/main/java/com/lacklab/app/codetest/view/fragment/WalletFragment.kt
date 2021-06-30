@@ -14,17 +14,20 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.lacklab.app.codetest.R
 import com.lacklab.app.codetest.data.MigoPass
 import com.lacklab.app.codetest.databinding.FragmentWalletBinding
-import com.lacklab.app.codetest.event.PassItemClickEvent
+import com.lacklab.app.codetest.event.PassItemEvent
+import com.lacklab.app.codetest.utilities.Converters
 import com.lacklab.app.codetest.view.adapter.PassAdapter
 import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class WalletFragment : Fragment(), PassItemClickEvent {
+class WalletFragment : Fragment(), PassItemEvent {
 
     private val TAG = WalletFragment::class.java.simpleName
 
@@ -206,8 +209,28 @@ class WalletFragment : Fragment(), PassItemClickEvent {
 
     }
 
-    override fun onButtonBuyClick(pass: MigoPass) {
+    override fun onButtonBuyClick(pass: MigoPass, position: Int) {
         Log.i("WalletFragment", "onButtonBuyClick")
-        viewModel.updatePass(pass)
+        lifecycleScope.launch {
+            viewModel.updatePass(pass)
+            Log.i("WalletFragment", "updatePass done")
+            viewModel.getPass(pass.id)
+            viewModel.pass?.observe(viewLifecycleOwner) {
+                Log.d(TAG, "pass:" +
+                        " ${Converters.dateFormat.format(pass.expirationTime?.time)}")
+                val passList = passAdapter.currentList.toMutableList()
+                if (passAdapter.getPassTypeCount() == 2) {
+                    if (it.passType == "Day"){
+                        passList[position - 1] = it
+                    } else {
+                        passList[position - 2] = it
+                    }
+                } else {
+                    passList[position - 1] = it
+                }
+                passAdapter.submitList(passList)
+                passAdapter.notifyDataSetChanged()
+            }
+        }
     }
 }
