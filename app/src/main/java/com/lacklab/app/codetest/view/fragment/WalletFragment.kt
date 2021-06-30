@@ -1,15 +1,16 @@
 package com.lacklab.app.codetest.view.fragment
 
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Adapter
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -20,15 +21,16 @@ import com.lacklab.app.codetest.event.PassItemClickEvent
 import com.lacklab.app.codetest.view.adapter.PassAdapter
 import com.lacklab.app.codetest.viewmodel.WalletViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.merge
 
 @AndroidEntryPoint
 class WalletFragment : Fragment(), PassItemClickEvent {
 
-    private lateinit var viewBinding: FragmentWalletBinding
+    private val TAG = WalletFragment::class.java.simpleName
 
+    private lateinit var viewBinding: FragmentWalletBinding
     private val viewModel: WalletViewModel by viewModels()
     private var passAdapter = PassAdapter(this)
+
     private lateinit var passesDay: List<MigoPass>
     private lateinit var passesHour: List<MigoPass>
     private var currentPassType: String = "Day"
@@ -37,7 +39,6 @@ class WalletFragment : Fragment(), PassItemClickEvent {
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,7 +53,6 @@ class WalletFragment : Fragment(), PassItemClickEvent {
         viewBinding = FragmentWalletBinding.inflate(inflater, container, false)
 
         viewBinding.recyclerViewWallet.adapter = passAdapter
-//        passAdapter.submitList(passItem)
 
         // set bottom sheet behavior
         val bottomSheetBehavior = BottomSheetBehavior.from(
@@ -92,29 +92,44 @@ class WalletFragment : Fragment(), PassItemClickEvent {
         }
 
         // set EditText
-        viewBinding.includeBottomSheet.textEditNumber.text
         viewBinding.includeBottomSheet.textEditNumber.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                currentPassNumber =
-                    viewBinding.includeBottomSheet.textEditNumber.text.toString().toLong()
-                currentPrice = currentPassNumber * 2.0000
-                viewBinding.includeBottomSheet.textPrice.text = "Rp $currentPrice"
+                Log.i("textEditNumber", "KEYCODE_ENTER AND ACTION_DOWN")
+                try {
+                    currentPassNumber =
+                        viewBinding.includeBottomSheet.textEditNumber.text.toString().toLong()
+                    currentPrice = currentPassNumber * 2.0000
+                    viewBinding.includeBottomSheet.textPrice.text = "Rp $currentPrice"
+                } catch (e:Exception) {
+                    Log.e(TAG, "Exception: ${e.message}")
+                }
                 true
             } else {
                 false
             }
         }
 
+
+
         //set Button apply
         viewBinding.includeBottomSheet.btnApply.setOnClickListener {
-              val migoPass =  MigoPass(
-                  passType = currentPassType,
-                  number = currentPassNumber,
-                  prices = currentPrice,
-                  passeStatus = "Added"
-              )
-            viewModel.insertPass(migoPass)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            if (currentPassNumber == 0.toLong()){
+                Toast.makeText(
+                    this.context,
+                    "Pass number can not empty or zero.",
+                    Toast.LENGTH_SHORT).show()
+            } else {
+                val migoPass = MigoPass(
+                    passType = currentPassType,
+                    number = currentPassNumber,
+                    prices = currentPrice,
+                    passeStatus = "Added"
+                )
+                viewModel.insertPass(migoPass)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+                // rest current pass number if we inserted pass
+                currentPassNumber = 0
+            }
         }
 
         return viewBinding.root
@@ -152,6 +167,11 @@ class WalletFragment : Fragment(), PassItemClickEvent {
     private fun updateUi() {
         viewModel.apiStatus.observe(viewLifecycleOwner) {
             viewBinding.textViewApiStatus.text = it
+            if (it == "OK") {
+                viewBinding.textViewApiStatus.setTextColor(Color.GREEN)
+            } else {
+                viewBinding.textViewApiStatus.setTextColor(Color.RED)
+            }
         }
         viewModel.passesDay.observe(viewLifecycleOwner) { it ->
             passesDay = it
@@ -166,14 +186,14 @@ class WalletFragment : Fragment(), PassItemClickEvent {
                     passTypes.add("HOUR")
                 }
                 val allList = passesDay + passesHour
-                passAdapter!!.setPassTypes(passTypes)
+                passAdapter.setPassTypes(passTypes)
                 if (passTypes.size == 1) {
-                    passAdapter!!.setHeaderPosition(arrayListOf(0))
+                    passAdapter.setHeaderPosition(arrayListOf(0))
                 } else if (passTypes.size == 2) {
-                    passAdapter!!.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
+                    passAdapter.setHeaderPosition(arrayListOf(0, passesDay.size + 1))
                 }
 
-                passAdapter!!.submitList(allList)
+                passAdapter.submitList(allList)
             }
         }
 
@@ -181,7 +201,6 @@ class WalletFragment : Fragment(), PassItemClickEvent {
 
     override fun onButtonBuyClick(pass: MigoPass) {
         Log.i("WalletFragment", "onButtonBuyClick")
-
         viewModel.updatePass(pass)
     }
 }

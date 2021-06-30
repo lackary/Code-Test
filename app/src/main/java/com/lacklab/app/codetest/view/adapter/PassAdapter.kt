@@ -1,6 +1,7 @@
 package com.lacklab.app.codetest.view.adapter
 
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -27,7 +28,6 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
 
     private var headPositions = mutableListOf<Int>()
     private var passTypes = mutableListOf<String>()
-//    private var clickEvent: PassItemClickEvent? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == TYPE_HEADER) {
@@ -121,6 +121,9 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
 
                 viewBinding.btnBuy.setOnClickListener {
                     calculateExpirationDate(pass!!)
+//                    viewBinding.btnBuy.text ="ACTIVATED"
+//                    viewBinding.btnBuy.isClickable = false
+//                    viewBinding.btnBuy.setTextColor(Color.GREEN)
                     Log.i("TEST", "${pass?.expirationTime?.timeInMillis}")
                     clickEvent!!.onButtonBuyClick(pass!!)
 
@@ -140,9 +143,11 @@ class PassAdapter(private val clickEvent: PassItemClickEvent) : ListAdapter<Migo
                 if (item.passActivation == "Activated") {
                     viewBinding.btnBuy.text ="ACTIVATED"
                     viewBinding.btnBuy.isClickable = false
+                    viewBinding.btnBuy.setTextColor(Color.GREEN)
                 } else {
                     viewBinding.btnBuy.text ="EXPIRED"
                     viewBinding.btnBuy.isClickable = false
+                    viewBinding.btnBuy.setTextColor(Color.RED)
                 }
             }
         }

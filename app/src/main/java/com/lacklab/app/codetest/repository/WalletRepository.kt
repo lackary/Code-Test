@@ -13,22 +13,31 @@ class WalletRepository @Inject constructor(
     private val passDao: PassDao,
     private val migoincService: MigoincService
 ) {
-    fun getPasses(passType: String) = passDao.getPasses(passType)
+    fun getPasses(passType: String): Flow<List<MigoPass>> {
+        Log.i("WalletRepository", "getPasses()")
+        return passDao.getPasses(passType)
+    }
 
     suspend fun insertPass(pass: MigoPass) = passDao.insertPass(pass)
 
     suspend fun updatePass(pass: MigoPass) = passDao.updatePass(pass)
 
     fun getAPIStatus(): Flow<String> {
-        return flow {
-            val url = if (MainApplication.connectType == "MOBILE") {
-                "https://code-test.migoinc-dev.com/"
-            } else {
-                "https://192.168.2.2/"
+        return try {
+            flow {
+                val url = if (MainApplication.connectType == "MOBILE") {
+                    "https://code-test.migoinc-dev.com/"
+                } else {
+                    "https://192.168.2.2/"
+                }
+                Log.i("repository", url)
+                val response = migoincService.getStatus()
+                emit(response.body()?.message)
+            } as Flow<String>
+        } catch (e: Exception) {
+            flow {
+                emit("FAILED")
             }
-            Log.i("repository", url)
-            val response = migoincService.getStatus()
-            emit(response.body()?.message)
-        } as Flow<String>
+        }
     }
 }

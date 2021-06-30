@@ -10,6 +10,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.telephony.TelephonyManager
 import android.util.Log
 import dagger.hilt.android.HiltAndroidApp
@@ -67,6 +68,10 @@ class MainApplication : Application() {
                 TelephonyManager.ACTION_PHONE_STATE_CHANGED ->
                     Log.i(TAG, "ACTION_PHONE_STATE_CHANGED")
             }
+//            if (Build.VERSION.SDK_INT <= 28) {
+//                // use getNetworkInfo to receive wifi network or mobile network
+//            }
+
         }
     }
 
