@@ -1,5 +1,7 @@
 package com.lacklab.app.codetest.repository
 
+import android.util.Log
+import com.lacklab.app.codetest.MainApplication
 import com.lacklab.app.codetest.api.MigoincService
 import com.lacklab.app.codetest.dao.PassDao
 import com.lacklab.app.codetest.data.MigoPass
@@ -19,6 +21,12 @@ class WalletRepository @Inject constructor(
 
     fun getAPIStatus(): Flow<String> {
         return flow {
+            val url = if (MainApplication.connectType == "MOBILE") {
+                "https://code-test.migoinc-dev.com/"
+            } else {
+                "https://192.168.2.2/"
+            }
+            Log.i("repository", url)
             val response = migoincService.getStatus()
             emit(response.body()?.message)
         } as Flow<String>
