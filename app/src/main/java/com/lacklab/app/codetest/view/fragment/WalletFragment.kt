@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.lacklab.app.codetest.R
 import com.lacklab.app.codetest.data.MigoPass
@@ -27,13 +28,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class WalletFragment : Fragment(), PassItemEvent {
+class WalletFragment : Fragment(),
+    SwipeRefreshLayout.OnRefreshListener,
+    PassItemEvent {
 
     private val TAG = WalletFragment::class.java.simpleName
 
     private lateinit var viewBinding: FragmentWalletBinding
     private val viewModel: WalletViewModel by viewModels()
     private var passAdapter = PassAdapter(this)
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
     private lateinit var passesDay: List<MigoPass>
     private lateinit var passesHour: List<MigoPass>
@@ -57,6 +61,15 @@ class WalletFragment : Fragment(), PassItemEvent {
         viewBinding = FragmentWalletBinding.inflate(inflater, container, false)
 
         viewBinding.recyclerViewWallet.adapter = passAdapter
+
+        // set swipe refresh layout
+        swipeRefreshLayout = viewBinding.swipeRefreshReload
+        swipeRefreshLayout.setOnRefreshListener(this)
+        swipeRefreshLayout.setColorSchemeResources(
+            R.color.design_default_color_primary,
+            android.R.color.holo_green_dark,
+            android.R.color.holo_orange_dark,
+            android.R.color.holo_blue_dark)
 
         // set bottom sheet behavior
         val bottomSheetBehavior = BottomSheetBehavior.from(
@@ -118,8 +131,6 @@ class WalletFragment : Fragment(), PassItemEvent {
                 false
             }
         }
-
-
 
         //set Button apply
         viewBinding.includeBottomSheet.btnApply.setOnClickListener {
@@ -202,9 +213,9 @@ class WalletFragment : Fragment(), PassItemEvent {
                 }
 
                 passAdapter.submitList(allList)
+                swipeRefreshLayout.isRefreshing = false
             }
         }
-
     }
 
     override fun onButtonBuyClick(pass: MigoPass, position: Int) {
@@ -228,5 +239,10 @@ class WalletFragment : Fragment(), PassItemEvent {
             passAdapter.submitList(passList)
             passAdapter.notifyDataSetChanged()
         }
+    }
+
+    // swipe refresh layout
+    override fun onRefresh() {
+        updateUi()
     }
 }
