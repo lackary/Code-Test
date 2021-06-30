@@ -42,9 +42,14 @@ class PassDetailFragment : Fragment(){
             "${resources.getString(R.string.item_pass_price)} Rp %.4f".format(args.pass.prices)
         viewBinding.textItemStatus.text =
             "${resources.getString(R.string.item_pass_status)} ${args.pass.passeStatus}"
+        viewBinding.textItemActivation.text =
+            "${resources.getString(R.string.item_pass_activation)} ${args.pass.passActivation}"
         viewBinding.textItemInsertionDate.text =
             "${resources.getString(R.string.item_pass_insertion_date)} " +
                     "${Converters.dateFormat.format(args.pass.insertionDate.time)}"
+        viewBinding.textItemExpirationTime.text =
+            "${resources.getString(R.string.item_pass_expiration_time)}" +
+                    "${Converters.dateFormat.format(args.pass.expirationTime?.time)}"
 
         return viewBinding.root
     }

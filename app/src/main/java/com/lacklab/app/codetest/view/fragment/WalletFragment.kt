@@ -8,6 +8,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -92,7 +93,8 @@ class WalletFragment : Fragment(), PassItemClickEvent {
         }
 
         // set EditText
-        viewBinding.includeBottomSheet.textEditNumber.setOnKeyListener { v, keyCode, event ->
+        val textEditNumber = viewBinding.includeBottomSheet.textEditNumber
+        textEditNumber.setOnKeyListener { v, keyCode, event ->
             if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
                 Log.i("textEditNumber", "KEYCODE_ENTER AND ACTION_DOWN")
                 try {
@@ -100,6 +102,11 @@ class WalletFragment : Fragment(), PassItemClickEvent {
                         viewBinding.includeBottomSheet.textEditNumber.text.toString().toLong()
                     currentPrice = currentPassNumber * 2.0000
                     viewBinding.includeBottomSheet.textPrice.text = "Rp $currentPrice"
+                    // hide soft input keyboard
+                    val inputMethManager =
+                        context?.getSystemService(Context.INPUT_METHOD_SERVICE)
+                                as InputMethodManager
+                    inputMethManager.hideSoftInputFromWindow(textEditNumber.windowToken, 0)
                 } catch (e:Exception) {
                     Log.e(TAG, "Exception: ${e.message}")
                 }
@@ -115,7 +122,7 @@ class WalletFragment : Fragment(), PassItemClickEvent {
         viewBinding.includeBottomSheet.btnApply.setOnClickListener {
             if (currentPassNumber == 0.toLong()){
                 Toast.makeText(
-                    this.context,
+                    context,
                     "Pass number can not empty or zero.",
                     Toast.LENGTH_SHORT).show()
             } else {
