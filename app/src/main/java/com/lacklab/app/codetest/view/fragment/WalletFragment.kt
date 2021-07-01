@@ -213,6 +213,7 @@ class WalletFragment : Fragment(),
                 }
 
                 passAdapter.submitList(allList)
+                passAdapter.notifyDataSetChanged()
                 swipeRefreshLayout.isRefreshing = false
             }
         }
